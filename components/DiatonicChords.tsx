@@ -25,7 +25,7 @@ const DiatonicChords: React.FC<DiatonicChordsProps> = ({ mode, tonic, onNotesAni
     <div>
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
         <h3 className="text-base font-semibold text-gray-800">
-            Diatonic Chords
+            Chords
         </h3>
         <div className="inline-flex rounded-md shadow-sm self-start sm:self-center" role="group">
           <button
