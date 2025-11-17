@@ -1,0 +1,5 @@
+{
+  "name": "Interactive Music Modes",
+  "description": "An interactive music theory application to explore how intervals change across the seven musical modes. Visualize scales on a piano and see the interval formulas update in real-time.",
+  "requestFramePermissions": []
+}
