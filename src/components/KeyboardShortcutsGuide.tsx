@@ -17,7 +17,7 @@ const KeyboardShortcutsGuide: React.FC = () => {
           <span className="hidden sm:inline text-gray-300">|</span>
           <span className="whitespace-nowrap">
             <b className="font-bold text-sky-600">Q-U:</b> Mode (
-            <b className="font-bold text-sky-600">⇧</b> rel.)
+            <b className="font-bold text-sky-600">⇧</b> relative)
           </span>
           <span className="hidden sm:inline text-gray-300">|</span>
           <span className="whitespace-nowrap">
