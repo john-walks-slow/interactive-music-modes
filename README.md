@@ -1,6 +1,6 @@
 # Interactive Modes & Scales
 
-![alt text](misc/screenshot.png)
+![alt text](misc/screenshot4.png)
 
 This is a web-based application for exploring and understanding modes and scales. It provides an interactive and visual way to see how each mode is constructed, hear how it sounds, and learn the chords associated with each scale degree.
 
