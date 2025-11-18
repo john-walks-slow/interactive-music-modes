@@ -1,23 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { MODES, UI_GROUPS } from '../constants/music'
 import { FiChevronDown } from 'react-icons/fi'
+import { getRelativeModeAndTonic } from '../utils/musicTheory'
+import { Mode, Note } from '../types'
 
 interface ModeSelectorProps {
-  activeModeIndex: number
-  onSelectMode: (index: number) => void
+  activeMode: Mode
+  tonic: Note
+  onModeChange: (modeIndex: number, newTonic?: Note) => void
 }
 
 const ModeSelector: React.FC<ModeSelectorProps> = ({
-  activeModeIndex,
-  onSelectMode,
+  activeMode,
+  tonic,
+  onModeChange,
 }) => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const handleSelect = (modeName: string) => {
-    const globalIndex = MODES.findIndex((m) => m.name === modeName)
+  const handleSelect = (
+    targetModeName: string,
+    event?: React.MouseEvent<HTMLElement>
+  ) => {
+    if (event?.shiftKey) {
+      const result = getRelativeModeAndTonic(activeMode, tonic, targetModeName)
+      if (result) {
+        const { newMode, newTonic } = result
+        const newModeIndex = MODES.findIndex((m) => m.name === newMode.name)
+        if (newModeIndex !== -1) {
+          onModeChange(newModeIndex, newTonic)
+          setOpenDropdown(null)
+          return
+        }
+      }
+    }
+
+    const globalIndex = MODES.findIndex((m) => m.name === targetModeName)
     if (globalIndex !== -1) {
-      onSelectMode(globalIndex)
+      onModeChange(globalIndex)
     }
     setOpenDropdown(null)
   }
@@ -36,7 +56,7 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const activeModeName = MODES[activeModeIndex].name
+  const activeModeName = activeMode.name
 
   return (
     <div
@@ -53,7 +73,7 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
           return (
             <button
               key={group.name}
-              onClick={() => handleSelect(group.name)}
+              onClick={(e) => handleSelect(group.name, e)}
               className={`px-3 sm:px-4 py-2 text-sm md:text-base font-semibold rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 ${
                 isGroupActive
                   ? 'bg-sky-500 text-white shadow-sm'
@@ -73,7 +93,7 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
           <div key={group.name} className="relative inline-block text-left">
             <div className="flex rounded-full border border-gray-300 bg-white">
               <button
-                onClick={() => handleSelect(buttonLabel)}
+                onClick={(e) => handleSelect(buttonLabel, e)}
                 className={`pl-3 sm:pl-4 pr-3 py-2 text-sm md:text-base font-semibold transition-colors duration-300 rounded-l-full focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 ${
                   isGroupActive
                     ? 'bg-sky-500 text-white'
@@ -86,15 +106,21 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
               <button
                 onClick={() =>
                   setOpenDropdown(
-                    openDropdown === group.name ? null : group.name,
+                    openDropdown === group.name ? null : group.name
                   )
                 }
-                className={`px-2 py-2 rounded-r-full transition-colors duration-300 border-l border-gray-300 focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 ${isGroupActive ? 'bg-sky-500 hover:bg-sky-600' : 'hover:bg-gray-100'}`}
+                className={`px-2 py-2 rounded-r-full transition-colors duration-300 border-l border-gray-300 focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 ${
+                  isGroupActive
+                    ? 'bg-sky-500 hover:bg-sky-600'
+                    : 'hover:bg-gray-100'
+                }`}
                 aria-haspopup="true"
                 aria-expanded={openDropdown === group.name}
               >
                 <FiChevronDown
-                  className={`w-5 h-5 transition-transform duration-200 ${openDropdown === group.name ? 'rotate-180' : ''} ${isGroupActive ? 'text-white' : 'text-gray-500'}`}
+                  className={`w-5 h-5 transition-transform duration-200 ${
+                    openDropdown === group.name ? 'rotate-180' : ''
+                  } ${isGroupActive ? 'text-white' : 'text-gray-500'}`}
                 />
               </button>
             </div>
@@ -107,9 +133,13 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
                       href="#"
                       onClick={(e) => {
                         e.preventDefault()
-                        handleSelect(variantName)
+                        handleSelect(variantName, e)
                       }}
-                      className={`block px-4 py-2 text-sm ${activeModeName === variantName ? 'font-semibold text-sky-600 bg-sky-50' : 'text-gray-700 hover:bg-gray-100'}`}
+                      className={`block px-4 py-2 text-sm ${
+                        activeModeName === variantName
+                          ? 'font-semibold text-sky-600 bg-sky-50'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
                       role="menuitem"
                     >
                       {variantName}

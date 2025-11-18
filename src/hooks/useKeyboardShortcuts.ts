@@ -5,6 +5,7 @@ import { getScaleNotesWithAbsoluteSemitones } from '../utils/music'
 import { getDiatonicChords } from '../utils/chordTheory'
 import { playNote, playChord } from '../utils/audio'
 import { getFrequencyFromSemitone } from '../utils/music'
+import { getRelativeModeAndTonic } from '../utils/musicTheory'
 
 interface KeyboardShortcutsProps {
   setActiveModeIndex: (index: number) => void
@@ -82,13 +83,29 @@ export const useKeyboardShortcuts = ({
       const { key, code, shiftKey } = event
       const lowerKey = key.toLowerCase()
 
-      // 1. Mode Change (Q-U)
-      if (!shiftKey && KEY_TO_MODE_INDEX.hasOwnProperty(lowerKey)) {
-        const modeIndex = KEY_TO_MODE_INDEX[lowerKey]
-        if (modeIndex !== -1) {
-          setActiveModeIndex(modeIndex)
-          event.preventDefault()
-          return
+      // 1. Mode Change (Q-U), with Shift for relative mode
+      if (KEY_TO_MODE_INDEX.hasOwnProperty(lowerKey)) {
+        const targetModeIndex = KEY_TO_MODE_INDEX[lowerKey]
+        const targetMode = MODES[targetModeIndex]
+
+        if (shiftKey && targetMode) {
+          const result = getRelativeModeAndTonic(mode, tonic, targetMode.name)
+          if (result) {
+            const { newMode, newTonic } = result
+            const newModeIndex = MODES.findIndex((m) => m.name === newMode.name)
+            if (newModeIndex !== -1) {
+              setActiveModeIndex(newModeIndex)
+              setTonic(newTonic)
+              event.preventDefault()
+              return
+            }
+          }
+        } else {
+          if (targetModeIndex !== -1) {
+            setActiveModeIndex(targetModeIndex)
+            event.preventDefault()
+            return
+          }
         }
       }
 
@@ -99,7 +116,7 @@ export const useKeyboardShortcuts = ({
           targetSemitone = (targetSemitone + 1) % 12
         }
         const newTonic = COMMON_TONICS.find(
-          (t) => t.semitone === targetSemitone,
+          (t) => t.semitone === targetSemitone
         )
         if (newTonic) {
           setTonic(newTonic)
@@ -108,23 +125,27 @@ export const useKeyboardShortcuts = ({
         }
       }
 
-      // 3. Diatonic Melody (a,s,d,f,g,h,j,k)
+      // 3. Diatonic Melody (a,s,d,f,g,h,j,k), Shift for sharp
       if (KEY_TO_MELODY_DEGREE.hasOwnProperty(lowerKey)) {
         const degree = KEY_TO_MELODY_DEGREE[lowerKey]
         const scaleNotes = getScaleNotesWithAbsoluteSemitones(mode, tonic)
+        let noteToPlay: Note | undefined
 
         if (degree === 7) {
           // Octave
-          const noteToPlay: Note = { ...tonic, semitone: tonic.semitone + 12 }
+          noteToPlay = { ...tonic, semitone: tonic.semitone + 12 }
+        } else {
+          noteToPlay = scaleNotes[degree]
+        }
+
+        if (noteToPlay) {
+          if (shiftKey) {
+            noteToPlay = { ...noteToPlay, semitone: noteToPlay.semitone + 1 }
+          }
           playNote(getFrequencyFromSemitone(noteToPlay.semitone), 0.4)
           onNotesAnimate([noteToPlay])
-        } else {
-          const noteToPlay = scaleNotes[degree]
-          if (noteToPlay) {
-            playNote(getFrequencyFromSemitone(noteToPlay.semitone), 0.4)
-            onNotesAnimate([noteToPlay])
-          }
         }
+
         event.preventDefault()
         return
       }
@@ -153,7 +174,7 @@ export const useKeyboardShortcuts = ({
         }
       }
     },
-    [mode, tonic, setActiveModeIndex, setTonic, onNotesAnimate, onChordPlay],
+    [mode, tonic, setActiveModeIndex, setTonic, onNotesAnimate, onChordPlay]
   )
 
   useEffect(() => {

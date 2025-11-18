@@ -16,16 +16,18 @@ const KeyboardShortcutsGuide: React.FC = () => {
           </span>
           <span className="hidden sm:inline text-gray-300">|</span>
           <span className="whitespace-nowrap">
-            <b className="font-bold text-sky-600">Q-U:</b> Mode
+            <b className="font-bold text-sky-600">Q-U:</b> Mode (
+            <b className="font-bold text-sky-600">⇧</b> rel.)
           </span>
           <span className="hidden sm:inline text-gray-300">|</span>
           <span className="whitespace-nowrap">
-            <b className="font-bold text-sky-600">A-K:</b> Notes
+            <b className="font-bold text-sky-600">A-K:</b> Notes (
+            <b className="font-bold text-sky-600">⇧</b> ♯)
           </span>
           <span className="hidden sm:inline text-gray-300">|</span>
           <span className="whitespace-nowrap">
             <b className="font-bold text-sky-600">Z-M:</b> Chords (
-            <b className="font-bold text-sky-600">⇧</b> 7ths)
+            <b className="font-bold text-sky-600">⇧</b> 7th)
           </span>
         </div>
       </div>

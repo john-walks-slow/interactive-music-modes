@@ -17,7 +17,7 @@ export const SCALES: { [key: string]: Mode } = {
       { number: 7, quality: 'M' },
     ],
     category: 'Major Scale Modes',
-    derivation: { parent: 'Ionian', name: 'Major Scale' },
+    derivation: { parent: 'Aeolian', name: 'Natural Minor' },
     characteristicIntervals: [],
   },
   Dorian: {
@@ -110,7 +110,7 @@ export const SCALES: { [key: string]: Mode } = {
       { number: 7, quality: 'm' },
     ],
     category: 'Major Scale Modes',
-    derivation: { parent: 'Aeolian', name: 'Natural Minor' },
+    derivation: { parent: 'Ionian', name: 'Major Scale' },
     characteristicIntervals: [],
   },
   Locrian: {

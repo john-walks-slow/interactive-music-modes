@@ -9,7 +9,7 @@ import { MODES, COMMON_TONICS } from './constants/music'
 import ModeSelector from './components/ModeSelector'
 import Piano from './components/Piano'
 import ModeInfo from './components/ModeInfo'
-import { ViewMode, Note } from './types'
+import { ViewMode, Note, Mode } from './types'
 import ViewModeSwitcher from './components/ViewModeSwitcher'
 import DistanceView from './components/DistanceView'
 import { TbMusic } from 'react-icons/tb'
@@ -27,10 +27,10 @@ const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('distance')
   const [tonic, setTonic] = useState<Note>(COMMON_TONICS[0])
   const [animationTriggers, setAnimationTriggers] = useState(
-    new Map<number, string>(),
+    new Map<number, string>()
   )
   const [animatingChordIndices, setAnimatingChordIndices] = useState(
-    new Map<number, string>(),
+    new Map<number, string>()
   )
 
   const noteAnimationTimeouts = useRef(new Map<number, NodeJS.Timeout>())
@@ -40,7 +40,7 @@ const App: React.FC = () => {
 
   const scaleNotes = useMemo(
     () => getScaleNotesWithAbsoluteSemitones(activeMode, tonic),
-    [activeMode, tonic],
+    [activeMode, tonic]
   )
 
   // Synchronously clear animations before the browser paints to prevent flashes
@@ -64,7 +64,7 @@ const App: React.FC = () => {
         const currentName = prev.get(semitone)
         next.set(
           semitone,
-          currentName === 'note-pop-a' ? 'note-pop-b' : 'note-pop-a',
+          currentName === 'note-pop-a' ? 'note-pop-b' : 'note-pop-a'
         )
       })
       return next
@@ -99,7 +99,7 @@ const App: React.FC = () => {
       const currentName = prev.get(degree)
       next.set(
         degree,
-        currentName === 'note-pop-a' ? 'note-pop-b' : 'note-pop-a',
+        currentName === 'note-pop-a' ? 'note-pop-b' : 'note-pop-a'
       )
       return next
     })
@@ -115,6 +115,27 @@ const App: React.FC = () => {
 
     chordAnimationTimeouts.current.set(degree, timeoutId)
   }, [])
+
+  const handleModeChange = useCallback((modeIndex: number, newTonic?: Note) => {
+    setActiveModeIndex(modeIndex)
+    if (newTonic) {
+      setTonic(newTonic)
+    }
+  }, [])
+
+  const handleSelectMode = useCallback(
+    (modeName: string, tonicName: string) => {
+      const modeIndex = MODES.findIndex((m) => m.name === modeName)
+      const tonic = COMMON_TONICS.find((t) => t.name === tonicName)
+
+      if (modeIndex !== -1 && tonic) {
+        setActiveModeIndex(modeIndex)
+        setTonic(tonic)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    },
+    []
+  )
 
   useKeyboardShortcuts({
     mode: activeMode,
@@ -144,8 +165,9 @@ const App: React.FC = () => {
             {/* Row 2: Mode Selector */}
             <div className="w-full">
               <ModeSelector
-                activeModeIndex={activeModeIndex}
-                onSelectMode={setActiveModeIndex}
+                activeMode={activeMode}
+                tonic={tonic}
+                onModeChange={handleModeChange}
               />
             </div>
           </div>
@@ -182,6 +204,7 @@ const App: React.FC = () => {
             onNotesAnimate={onNotesAnimate}
             animatingChordIndices={animatingChordIndices}
             onChordPlay={handleChordPlay}
+            onSelectMode={handleSelectMode}
           />
         </div>
       </main>

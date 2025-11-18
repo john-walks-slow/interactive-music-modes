@@ -43,10 +43,12 @@ const TonicSelector: React.FC<TonicSelectorProps> = ({
           aria-haspopup="true"
           aria-expanded={isOpen}
         >
-          <span className="mr-2">Tonic:</span>
+          <span className="mr-2 text-sky-700">Tonic:</span>
           <span className="font-bold">{activeTonic.name}</span>
           <FiChevronDown
-            className={`-mr-1 ml-2 h-5 w-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+            className={`-mr-1 ml-2 h-5 w-5 transition-transform duration-200 ${
+              isOpen ? 'rotate-180' : ''
+            }`}
           />
         </button>
       </div>
@@ -68,7 +70,11 @@ const TonicSelector: React.FC<TonicSelectorProps> = ({
                     e.preventDefault()
                     handleSelect(note)
                   }}
-                  className={`block px-4 py-2 text-sm ${isActive ? 'font-semibold text-sky-600 bg-sky-50' : 'text-gray-700 hover:bg-gray-100'}`}
+                  className={`block px-4 py-2 text-sm ${
+                    isActive
+                      ? 'font-semibold text-sky-600 bg-sky-50'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
                   role="menuitem"
                 >
                   {note.name}

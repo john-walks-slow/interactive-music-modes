@@ -13,6 +13,7 @@ interface ModeInfoProps {
   onNotesAnimate: (notes: Note[]) => void
   animatingChordIndices: Map<number, string>
   onChordPlay: (degree: number) => void
+  onSelectMode: (modeName: string, tonicName: string) => void
 }
 
 const ModeInfo: React.FC<ModeInfoProps> = ({
@@ -21,6 +22,7 @@ const ModeInfo: React.FC<ModeInfoProps> = ({
   onNotesAnimate,
   animatingChordIndices,
   onChordPlay,
+  onSelectMode,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false)
 
@@ -78,7 +80,11 @@ const ModeInfo: React.FC<ModeInfoProps> = ({
         </button>
       </div>
 
-      <RelativeScaleInfo mode={mode} tonic={tonic} />
+      <RelativeScaleInfo
+        mode={mode}
+        tonic={tonic}
+        onSelectMode={onSelectMode}
+      />
 
       {/* Interval Analysis section */}
       {mode.derivation && (

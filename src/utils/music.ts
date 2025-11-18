@@ -42,3 +42,18 @@ export const getScaleNotesWithAbsoluteSemitones = (
     })
     .filter(Boolean) as Note[]
 }
+
+
+export const getRelativeMode = (modeName: string): string | undefined => {
+  const relativeMap: Record<string, string> = {
+    Major: 'Minor',
+    Minor: 'Major',
+    Ionian: 'Aeolian',
+    Aeolian: 'Ionian',
+    Mixolydian: 'Locrian',
+    Locrian: 'Mixolydian',
+    Dorian: 'Phrygian',
+    Phrygian: 'Dorian',
+  }
+  return relativeMap[modeName]
+}

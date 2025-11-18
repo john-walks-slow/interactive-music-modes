@@ -6,46 +6,60 @@ import { TbBulb } from 'react-icons/tb'
 interface RelativeScaleInfoProps {
   mode: Mode
   tonic: Note
+  onSelectMode: (modeName: string, tonicName: string) => void
 }
 
-// Defines the semitone distance from a mode's root UP to the parent Ionian root.
-// We subtract this to find the parent tonic.
-const MODE_SEMITONE_OFFSETS: { [key: string]: number } = {
-  Ionian: 0,
-  Dorian: 2,
-  Phrygian: 4,
-  Lydian: 5,
-  Mixolydian: 7,
-  Aeolian: 9,
-  Locrian: 11,
+// Defines the relationship between a mode and its parent scale's tonic.
+// The offset is the number of semitones the mode's tonic is *above* the parent Ionian tonic.
+const MODE_RELATIONSHIPS: {
+  [key: string]: { relative: string; offset: number }
+} = {
+  Ionian: { relative: 'Aeolian', offset: -3 }, // Relative minor is 3 semitones down
+  Dorian: { relative: 'Ionian', offset: 2 },
+  Phrygian: { relative: 'Ionian', offset: 4 },
+  Lydian: { relative: 'Ionian', offset: 5 },
+  Mixolydian: { relative: 'Ionian', offset: 7 },
+  Aeolian: { relative: 'Ionian', offset: 9 },
+  Locrian: { relative: 'Ionian', offset: 11 },
 }
 
 const RelativeScaleInfo: React.FC<RelativeScaleInfoProps> = ({
   mode,
   tonic,
+  onSelectMode,
 }) => {
-  // This feature is only relevant for the 7 modes of the major scale.
-  if (mode.category !== 'Major Scale Modes' || mode.name === 'Ionian') {
+  if (mode.category !== 'Major Scale Modes') {
     return null
   }
 
-  const offset = MODE_SEMITONE_OFFSETS[mode.name]
-  if (offset === undefined) {
+  const relationship = MODE_RELATIONSHIPS[mode.name]
+  if (!relationship) {
     return null
   }
 
-  const relativeMajorTonicSemitone = (tonic.semitone - offset + 12) % 12
-  // Find a suitable tonic from our common list. This prefers flats (Db, Eb, etc.) over sharps for relevant keys.
-  const relativeMajorTonic =
-    COMMON_TONICS.find((n) => n.semitone === relativeMajorTonicSemitone) ||
-    CHROMATIC_NOTES.find((n) => n.semitone === relativeMajorTonicSemitone) // Fallback for other keys like F#
+  const { relative: relativeModeName, offset } = relationship
 
-  const ionianMode = SCALES['Ionian']
+  // To find the parent/relative tonic, we adjust the current tonic's semitone by the offset.
+  // For modes finding their parent Ionian, we subtract the offset.
+  // For Ionian finding its relative Aeolian, we also subtract (offset is -3).
+  const relativeTonicSemitone = (tonic.semitone - offset + 12) % 12
 
-  if (!relativeMajorTonic) {
+  const relativeTonic =
+    COMMON_TONICS.find((n) => n.semitone === relativeTonicSemitone) ||
+    CHROMATIC_NOTES.find((n) => n.semitone === relativeTonicSemitone)
+
+  const relativeMode = SCALES[relativeModeName]
+
+  if (!relativeTonic || !relativeMode) {
     return null
   }
 
+  const handleJump = () => {
+    onSelectMode(relativeMode.name, relativeTonic.name)
+  }
+  const isRelativeMajor =
+    relativeMode.name === 'Ionian' && mode.name !== 'Ionian'
+  const isRelativeMinor = relativeMode.name === 'Aeolian'
   return (
     <div className="mt-4 p-3 bg-sky-50 rounded-lg border border-sky-200">
       <div className="flex items-start gap-3">
@@ -55,10 +69,14 @@ const RelativeScaleInfo: React.FC<RelativeScaleInfoProps> = ({
             {tonic.name} {mode.name}
           </span>{' '}
           uses the same notes as{' '}
-          <span className="font-semibold">
-            {relativeMajorTonic.name} {ionianMode.name}
-          </span>{' '}
-          (Major Scale).
+          <button
+            onClick={handleJump}
+            className="font-semibold text-sky-600 hover:underline focus:outline-none focus:ring-2 focus:ring-sky-400 rounded"
+          >
+            {relativeTonic.name} {relativeMode.name}
+          </button>
+          {isRelativeMajor && ' (the Major Scale)'}
+          {isRelativeMinor && ' (the Natural Minor)'}.
         </p>
       </div>
     </div>

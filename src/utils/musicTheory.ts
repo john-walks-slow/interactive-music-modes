@@ -1,5 +1,5 @@
 import { Mode, Note } from '../types'
-import { getIntervalSemitone } from '../constants/music'
+import { COMMON_TONICS, getIntervalSemitone, MODES } from '../constants/music'
 
 /**
  * 定义了标准的自然音阶字母顺序。
@@ -69,11 +69,52 @@ export const getScaleNotes = (mode: Mode, tonic: Note): (Note | null)[] => {
     // 3. 找到与半音和字母都匹配的特定音符拼写（例如，B或Bb）。
     const candidates = getNoteCandidates(targetSemitone)
     const correctNote = candidates.find(
-      (note) => note.name.charAt(0).toUpperCase() === targetLetter,
+      (note) => note.name.charAt(0).toUpperCase() === targetLetter
     )
 
     scaleNotes.push(correctNote || null)
   })
 
   return scaleNotes
+}
+
+// Maps mode names to their offset in semitones from the parent Ionian.
+const MODE_OFFSETS: Record<string, number> = {
+  Ionian: 0,
+  Dorian: 2,
+  Phrygian: 4,
+  Lydian: 5,
+  Mixolydian: 7,
+  Aeolian: 9,
+  Locrian: 11,
+}
+
+export const getRelativeModeAndTonic = (
+  currentMode: Mode,
+  currentTonic: Note,
+  targetModeName: string
+): { newMode: Mode; newTonic: Note } | null => {
+  const currentModeOffset = MODE_OFFSETS[currentMode.name]
+  const targetModeOffset = MODE_OFFSETS[targetModeName]
+
+  if (currentModeOffset === undefined || targetModeOffset === undefined) {
+    // This logic is for Major scale modes only for now.
+    return null
+  }
+
+  // 1. Find the tonic of the parent Ionian scale.
+  const parentIonianTonicSemitone =
+    (currentTonic.semitone - currentModeOffset + 12) % 12
+
+  // 2. Calculate the new tonic's semitone based on the target mode's offset.
+  const newTonicSemitone = (parentIonianTonicSemitone + targetModeOffset) % 12
+
+  const newTonic = COMMON_TONICS.find((n) => n.semitone === newTonicSemitone)
+  const newMode = MODES.find((m) => m.name === targetModeName)
+
+  if (!newTonic || !newMode) {
+    return null
+  }
+
+  return { newMode, newTonic }
 }
