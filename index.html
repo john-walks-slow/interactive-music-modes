@@ -1,72 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Interactive Music Modes</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="/favicon.svg" type="image/svg" />
-
-  <style>
-    body {
-      font-family: 'Nunito', sans-serif;
-    }
-
-    /* Custom animation for a quick pop effect */
-    @keyframes note-pop-a {
-
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 1;
-        filter: brightness(1);
-      }
-
-      50% {
-        transform: scale(1.1);
-        opacity: 0.7;
-        filter: brightness(1.03);
-      }
-    }
-
-    @keyframes note-pop-b {
-
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 1;
-        filter: brightness(1);
-      }
-
-      50% {
-        transform: scale(1.1);
-        opacity: 0.7;
-        filter: brightness(1.03);
-      }
-    }
-
-    /* Animation for text fading in and up */
-    @keyframes fade-in-up {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .animate-fade-in-up {
-      animation: fade-in-up 0.5s ease-out forwards;
-    }
-  </style>
-  <script type="importmap">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Music Modes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg" />
+    <script type="importmap">
       {
         "imports": {
           "react": "https://aistudiocdn.com/react@^19.2.0",
@@ -76,12 +22,11 @@
         }
       }
     </script>
-  <link rel="stylesheet" href="src/index.css" />
-</head>
+    <link rel="stylesheet" href="src/index.css" />
+  </head>
 
-<body class="bg-gray-50 text-gray-800 antialiased">
-  <div id="root"></div>
-  <script type="module" src="src/index.tsx"></script>
-</body>
-
+  <body class="bg-gray-50 text-gray-800 antialiased">
+    <div id="root"></div>
+    <script type="module" src="src/index.tsx"></script>
+  </body>
 </html>
