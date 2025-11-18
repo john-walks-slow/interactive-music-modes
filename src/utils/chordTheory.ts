@@ -11,7 +11,7 @@ import { getScaleNotes } from './musicTheory'
 export const getDiatonicChords = (
   mode: Mode,
   tonic: Note,
-  type: ChordType,
+  type: ChordType
 ): Chord[] => {
   const scaleNotes = getScaleNotes(mode, tonic)
   const chords: Chord[] = []
@@ -48,7 +48,7 @@ export const getDiatonicChords = (
       rootNote,
       thirdNote,
       fifthNote,
-      seventhNote,
+      seventhNote
     )
 
     chords.push({
@@ -76,7 +76,7 @@ const determineChordQuality = (
   root: Note,
   third: Note,
   fifth: Note,
-  seventh: Note | null,
+  seventh: Note | null
 ) => {
   const intervalToThird = (third.semitone - root.semitone + 12) % 12
   const intervalToFifth = (fifth.semitone - root.semitone + 12) % 12

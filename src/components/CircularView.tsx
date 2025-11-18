@@ -191,8 +191,8 @@ const CircularView: React.FC<CircularViewProps> = ({
                              isTonic
                                ? 'bg-sky-100 text-sky-600 border-2 border-sky-400 shadow-md'
                                : isScaleNote
-                               ? 'bg-gray-200/80 text-gray-700'
-                               : 'bg-transparent text-gray-400'
+                                 ? 'bg-gray-200/80 text-gray-700'
+                                 : 'bg-transparent text-gray-400'
                            }`}
               style={{
                 animation: animationName

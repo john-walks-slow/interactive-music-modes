@@ -65,14 +65,17 @@ export const playScale = (
   }
 
   notes.forEach((note, index) => {
-    setTimeout(() => {
-      // Trigger animation callback for the single note
-      onNotesAnimate([note])
+    setTimeout(
+      () => {
+        // Trigger animation callback for the single note
+        onNotesAnimate([note])
 
-      // Play audio for the note
-      const frequency = getFrequencyFromSemitone(note.semitone)
-      playNote(frequency, noteDuration)
-    }, index * (noteDuration + gap) * 1000)
+        // Play audio for the note
+        const frequency = getFrequencyFromSemitone(note.semitone)
+        playNote(frequency, noteDuration)
+      },
+      index * (noteDuration + gap) * 1000
+    )
   })
 
   return (noteDuration + gap) * notes.length
