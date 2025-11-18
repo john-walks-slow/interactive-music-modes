@@ -1,84 +1,72 @@
 import { Mode, Note } from '../types'
-import { COMMON_TONICS, getIntervalSemitone, MODES } from '../constants/music'
+import {
+  C4_FREQUENCY,
+  COMMON_TONICS,
+  ENHARMONIC_NOTES,
+  getIntervalSemitone,
+  MODES,
+} from '../constants/music'
 
 /**
- * 定义了标准的自然音阶字母顺序。
+ * 根据音符的半音数计算其频率。
+ * 在此应用中，所有音符都在第四个八度内播放。
+ * @param semitone - 从 C (C=0, C#=1) 开始的绝对半音数。
+ * @returns 频率 (Hz)。
  */
+export const getFrequencyFromSemitone = (semitone: number): number => {
+  // 频率公式: F = F_base * 2^(n/12)，其中 n 是半音数差。
+  return C4_FREQUENCY * Math.pow(2, semitone / 12)
+}
+
+/** 定义了标准的自然音阶字母顺序。 */
 const DIATONIC_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 
 /**
- * 将 12 个半音（0-11）映射到其可能的异名同音拼写。
- * 这包括常见的拼写以及理论上正确的稀有重升/重降音。
- */
-const SEMITONE_TO_NAMES: Record<number, string[]> = {
-  0: ['C', 'B#', 'Dbb'],
-  1: ['C#', 'Db'],
-  2: ['D', 'C##', 'Ebb'],
-  3: ['D#', 'Eb', 'Fbb'],
-  4: ['E', 'D##', 'Fb'],
-  5: ['F', 'E#', 'Gbb'],
-  6: ['F#', 'Gb'],
-  7: ['G', 'F##', 'Abb'],
-  8: ['G#', 'Ab'],
-  9: ['A', 'G##', 'Bbb'],
-  10: ['A#', 'Bb', 'Cbb'],
-  11: ['B', 'A##', 'Cb'],
-}
-
-/**
- * 查找给定半音值所有可能的音符对象。
- * @param semitone - 绝对半音值 (0-11)。
- * @returns 一个可能的音符对象数组（例如，对于半音值 1，返回 C# 和 Db）。
- */
-const getNoteCandidates = (semitone: number): Note[] => {
-  const names = SEMITONE_TO_NAMES[semitone] ?? []
-  // 如果一个音符不属于C大调的自然音，则认为它是“黑键”。
-  const naturalSemitones = [0, 2, 4, 5, 7, 9, 11]
-  const isBlack = !naturalSemitones.includes(semitone)
-  return names.map((name) => ({ name, isBlack, semitone }))
-}
-
-/**
- * 计算给定调式音阶的七个音符，从指定的根音开始，
- * 确保使用理论上正确的音名（例如，适当地使用升号或降号）。
+ * 计算给定调式音阶的七个音符，确保使用理论上正确的音名。
  *
- * 核心原则是，一个全音阶应该每个字母音名（A-G）只使用一次。
+ * 核心原则是，一个全音阶的每个音级（degree）都应该对应一个唯一的字母（A-G）。
+ * 此函数通过查找与目标半音数和目标音级字母都匹配的音符名称来实现这一点。
  *
- * @param mode - 音乐调式（例如，Ionian, Dorian）。
+ * @param mode - 音乐调式 (例如 Ionian, Dorian)。
  * @param tonic - 音阶的起始音。
- * @returns 一个包含七个音符对象的数组，代表该音阶。如果任何音符无法解析，则返回 null。
+ * @returns 一个包含七个 Note 对象的数组，代表该音阶。如果任何音符无法解析，则对应位置为 null。
  */
 export const getScaleNotes = (mode: Mode, tonic: Note): (Note | null)[] => {
   const tonicLetter = tonic.name.charAt(0).toUpperCase()
   const tonicLetterIndex = DIATONIC_LETTERS.indexOf(tonicLetter)
 
   if (tonicLetterIndex === -1) {
-    // 对于有效的根音输入，不应达到此情况。
+    console.error('无效的根音:', tonic)
     return Array(7).fill(null)
   }
 
-  const scaleNotes: (Note | null)[] = []
-
-  mode.intervals.forEach((interval, i) => {
-    // 1. 计算当前音级目标绝对半音。
+  return mode.intervals.map((interval, i) => {
+    // 1. 计算当前音级的目标绝对半音值 (0-11)。
     const targetSemitone = (tonic.semitone + getIntervalSemitone(interval)) % 12
 
-    // 2. 确定该音级的预期自然音名（例如，G的第三个音是B）。
+    // 2. 确定该音级的预期字母 (例如 G 大调的第三个音应该是 'B')。
     const targetLetter = DIATONIC_LETTERS[(tonicLetterIndex + i) % 7]
 
-    // 3. 找到与半音和字母都匹配的特定音符拼写（例如，B或Bb）。
-    const candidates = getNoteCandidates(targetSemitone)
-    const correctNote = candidates.find(
-      (note) => note.name.charAt(0).toUpperCase() === targetLetter
+    // 3. 从 ENHARMONIC_NOTES 中查找所有可能的拼写。
+    const candidates = ENHARMONIC_NOTES[targetSemitone]
+    if (!candidates) return null
+
+    // 4. 找到与目标字母匹配的正确拼写 (例如 B vs B# vs Bb)。
+    const correctName = candidates.names.find(
+      (name) => name.charAt(0).toUpperCase() === targetLetter
     )
 
-    scaleNotes.push(correctNote || null)
-  })
+    if (!correctName) return null
 
-  return scaleNotes
+    return {
+      name: correctName,
+      isBlack: candidates.isBlack,
+      semitone: targetSemitone, // 注意：这里是相对半音 (0-11)
+    }
+  })
 }
 
-// Maps mode names to their offset in semitones from the parent Ionian.
+/** 将大调的调式名称映射到其相对于主音阶 (Ionian) 的半音偏移量。 */
 const MODE_OFFSETS: Record<string, number> = {
   Ionian: 0,
   Dorian: 2,
@@ -89,6 +77,15 @@ const MODE_OFFSETS: Record<string, number> = {
   Locrian: 11,
 }
 
+/**
+ * 计算从当前调式和根音跳转到另一个关系调式时，新的调式和根音应该是什么。
+ * (目前仅支持大调音阶内的调式)
+ *
+ * @param currentMode - 当前的调式。
+ * @param currentTonic - 当前的根音。
+ * @param targetModeName - 目标调式的名称。
+ * @returns 返回一个包含 { newMode, newTonic } 的对象，如果无法计算则返回 null。
+ */
 export const getRelativeModeAndTonic = (
   currentMode: Mode,
   currentTonic: Note,
@@ -97,16 +94,16 @@ export const getRelativeModeAndTonic = (
   const currentModeOffset = MODE_OFFSETS[currentMode.name]
   const targetModeOffset = MODE_OFFSETS[targetModeName]
 
+  // 该逻辑目前仅适用于大调的七个调式。
   if (currentModeOffset === undefined || targetModeOffset === undefined) {
-    // This logic is for Major scale modes only for now.
     return null
   }
 
-  // 1. Find the tonic of the parent Ionian scale.
+  // 1. 找到当前音阶所属的父级 Ionian (大调) 音阶的根音。
   const parentIonianTonicSemitone =
     (currentTonic.semitone - currentModeOffset + 12) % 12
 
-  // 2. Calculate the new tonic's semitone based on the target mode's offset.
+  // 2. 根据目标调式的偏移量，计算出新调式的根音。
   const newTonicSemitone = (parentIonianTonicSemitone + targetModeOffset) % 12
 
   const newTonic = COMMON_TONICS.find((n) => n.semitone === newTonicSemitone)
@@ -117,4 +114,39 @@ export const getRelativeModeAndTonic = (
   }
 
   return { newMode, newTonic }
+}
+
+/**
+ * 计算给定调式从指定根音开始的七个音符，并为每个音符赋予绝对且递增的半音值。
+ *
+ * `getScaleNotes` 返回的是理论上正确的音名和相对半音 (0-11)，
+ * 而这个函数则将这些相对半音转换成绝对半音 (例如，根音是 D(2)，那么音阶的第五个音 A 的半音值将是 2 + 7 = 9，而不是单纯的 9 % 12)。
+ * 这对于音频播放和区分不同八度的音符（虽然此应用简化了八度）至关重要。
+ *
+ * @param mode - 音乐调式 (例如 Ionian, Dorian)。
+ * @param tonic - 音阶的起始音。
+ * @returns 一个包含七个 Note 对象的数组，每个对象都有唯一的、绝对的半音值。
+ */
+export const getScaleNotesWithAbsoluteSemitones = (
+  mode: Mode,
+  tonic: Note
+): Note[] => {
+  // 首先获取理论正确的音名
+  const namedNotes = getScaleNotes(mode, tonic)
+
+  return mode.intervals
+    .map((interval, i) => {
+      const noteInfo = namedNotes[i]
+      if (!noteInfo) return null
+
+      const intervalSemitones = getIntervalSemitone(interval)
+      if (intervalSemitones === -1) return null
+
+      // 基于根音的半音值和音程的半音数，计算出绝对半音值
+      return {
+        ...noteInfo,
+        semitone: tonic.semitone + intervalSemitones,
+      }
+    })
+    .filter((note): note is Note => note !== null)
 }

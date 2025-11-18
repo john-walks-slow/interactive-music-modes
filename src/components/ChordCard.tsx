@@ -1,7 +1,7 @@
 import React from 'react'
 import { Chord, Note } from '../types'
 import { playChord } from '../utils/audio'
-import { getFrequencyFromSemitone } from '../utils/music'
+import { getFrequencyFromSemitone } from '../utils/musicTheory'
 
 interface ChordCardProps {
   chord: Chord

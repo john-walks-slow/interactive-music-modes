@@ -1,6 +1,6 @@
 import React from 'react'
 import { Mode, Note, Interval } from '../types'
-import { CHROMATIC_NOTES } from '../constants/music'
+import { ENHARMONIC_NOTES } from '../constants/music'
 
 interface PianoProps {
   mode: Mode
@@ -10,48 +10,12 @@ interface PianoProps {
   onNoteClick: (note: Note) => void
 }
 
-/**
- * Determines the Tailwind CSS classes for a minimal interval label.
- * It adjusts text color based on the interval's quality and whether it's on a light or dark background.
- * @param onDark - True if the label is for a black key, false for a white key.
- */
 const getIntervalStyle = (
   interval: Interval | undefined,
   mode: Mode,
-  onDark: boolean,
+  onDark: boolean
 ): string => {
-  // if (!interval) return onDark ? 'text-gray-400' : 'text-gray-500';
   return onDark ? 'text-gray-300' : 'text-gray-600'
-  const isCharacteristic =
-    mode.characteristicIntervals?.includes(interval.number) &&
-    mode.derivation?.parent !== mode.name
-
-  // Characteristic intervals (like Lydian's #4) get a distinct color and are bold.
-  if (isCharacteristic) {
-    return onDark ? 'text-amber-300 font-bold' : 'text-amber-600 font-bold'
-  }
-
-  // The 3rd is a key quality tone, so it's also bold.
-  if (interval.number === 3) {
-    if (interval.quality === 'M')
-      return onDark ? 'text-sky-200 font-bold' : 'text-sky-600 font-bold'
-    if (interval.quality === 'm')
-      return onDark ? 'text-yellow-200 font-bold' : 'text-yellow-600 font-bold'
-  }
-  // Standard colors for other interval qualities.
-  switch (interval.quality) {
-    case 'M':
-      return onDark ? 'text-sky-300' : 'text-sky-500'
-    case 'm':
-      return onDark ? 'text-yellow-300' : 'text-yellow-500'
-    case 'A':
-      return onDark ? 'text-green-300' : 'text-green-600'
-    case 'd':
-      return onDark ? 'text-red-300' : 'text-red-600'
-    case 'P':
-    default:
-      return onDark ? 'text-gray-300' : 'text-gray-600'
-  }
 }
 
 const Piano: React.FC<PianoProps> = ({
@@ -67,7 +31,6 @@ const Piano: React.FC<PianoProps> = ({
   })
   const octaveAbsoluteSemitone = tonic.semitone + 12
 
-  // Create maps for interval labels and interval objects for styling
   const semitoneToIntervalMap = new Map<number, string>()
   const semitoneToIntervalObjectMap = new Map<number, Interval>()
 
@@ -83,8 +46,24 @@ const Piano: React.FC<PianoProps> = ({
     })
   }
 
+  /**
+   * 根据 `ENHARMONIC_NOTES` 生成用于渲染的12个半音列表。
+   * 黑键优先使用升号（#）表示，更符合钢琴键盘的习惯。
+   */
+  const PIANO_NOTES: Note[] = Object.entries(ENHARMONIC_NOTES).map(
+    ([semitone, data]) => {
+      const sharpName = data.names.find((n) => n.includes('#'))
+      const preferredName = sharpName || data.names[0]
+      return {
+        name: preferredName,
+        isBlack: data.isBlack,
+        semitone: parseInt(semitone, 10),
+      }
+    }
+  )
+
   const octaveC: Note = { name: 'C', isBlack: false, semitone: 12 }
-  const keysToRender = [...CHROMATIC_NOTES, octaveC]
+  const keysToRender = [...PIANO_NOTES, octaveC]
 
   const whiteKeys = keysToRender.filter((n) => !n.isBlack)
   const WHITE_KEY_COUNT = whiteKeys.length
@@ -106,21 +85,15 @@ const Piano: React.FC<PianoProps> = ({
           ? semitoneToIntervalObjectMap.get(relativeSemitone)
           : undefined
 
-        let animationName
-        if (isScaleNote) {
-          if (isRootPitchClass && isOctaveDisplayKey) {
-            animationName = animationTriggers.get(octaveAbsoluteSemitone)
-          } else {
-            const absoluteSemitone = relativeToAbsoluteMap.get(relativeSemitone)
-            animationName = animationTriggers.get(absoluteSemitone)
-          }
-        }
+        const animationName = animationTriggers.get(note.semitone)
 
         return (
           <div
             key={`white-${note.semitone}`}
             onClick={() => onNoteClick(note)}
-            className={`absolute h-full border-r border-gray-200 transition-all duration-300 cursor-pointer active:brightness-95 origin-bottom ${isScaleNote ? 'bg-sky-100' : 'bg-white'}`}
+            className={`absolute h-full border-r border-gray-200 transition-all duration-300 cursor-pointer active:brightness-95 origin-bottom ${
+              isScaleNote ? 'bg-sky-100' : 'bg-white'
+            }`}
             style={{
               left: `${index * WHITE_KEY_WIDTH_PERCENT}%`,
               width: `${WHITE_KEY_WIDTH_PERCENT}%`,
@@ -132,7 +105,11 @@ const Piano: React.FC<PianoProps> = ({
           >
             {label && (
               <span
-                className={`absolute bottom-2 left-1/2 -translate-x-1/2 text-sm font-mono ${getIntervalStyle(intervalObject, mode, false)}`}
+                className={`absolute bottom-2 left-1/2 -translate-x-1/2 text-sm font-mono ${getIntervalStyle(
+                  intervalObject,
+                  mode,
+                  false
+                )}`}
               >
                 {isRootPitchClass && isOctaveDisplayKey ? 'P8' : label}
               </span>
@@ -155,11 +132,8 @@ const Piano: React.FC<PianoProps> = ({
           ? semitoneToIntervalObjectMap.get(relativeSemitone)
           : undefined
 
-        let animationName
-        if (isScaleNote) {
-          const absoluteSemitone = relativeToAbsoluteMap.get(relativeSemitone)
-          animationName = animationTriggers.get(absoluteSemitone)
-        }
+        // 动画的 key 直接使用琴键的半音值 (0-12)。
+        const animationName = animationTriggers.get(note.semitone)
 
         const whiteKeysBefore = keysToRender
           .slice(0, keyIndex)
@@ -172,7 +146,11 @@ const Piano: React.FC<PianoProps> = ({
           <div
             key={`black-${note.semitone}`}
             onClick={() => onNoteClick(note)}
-            className={`absolute top-0 h-2/3 rounded-b-md border-2 transition-all duration-300 z-10 cursor-pointer active:brightness-125 origin-bottom ${isScaleNote ? 'bg-sky-700 border-sky-800' : 'bg-slate-800 border-slate-700'}`}
+            className={`absolute top-0 h-2/3 rounded-b-md border-2 transition-all duration-300 z-10 cursor-pointer active:brightness-125 origin-bottom ${
+              isScaleNote
+                ? 'bg-sky-700 border-sky-800'
+                : 'bg-slate-800 border-slate-700'
+            }`}
             style={{
               left: `${leftPosition}%`,
               width: `${BLACK_KEY_WIDTH_PERCENT}%`,
@@ -185,7 +163,11 @@ const Piano: React.FC<PianoProps> = ({
           >
             {label && (
               <span
-                className={`absolute bottom-2 left-1/2 -translate-x-1/2 text-sm font-mono ${getIntervalStyle(intervalObject, mode, true)}`}
+                className={`absolute bottom-2 left-1/2 -translate-x-1/2 text-sm font-mono ${getIntervalStyle(
+                  intervalObject,
+                  mode,
+                  true
+                )}`}
               >
                 {label}
               </span>

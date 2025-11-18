@@ -1,6 +1,6 @@
 import React from 'react'
 import { Mode, Note } from '../types'
-import { SCALES, CHROMATIC_NOTES, COMMON_TONICS } from '../constants/music'
+import { getRelativeModeAndTonic } from '../utils/musicTheory'
 import { TbBulb } from 'react-icons/tb'
 
 interface RelativeScaleInfoProps {
@@ -9,50 +9,20 @@ interface RelativeScaleInfoProps {
   onSelectMode: (modeName: string, tonicName: string) => void
 }
 
-// Defines the relationship between a mode and its parent scale's tonic.
-// The offset is the number of semitones the mode's tonic is *above* the parent Ionian tonic.
-const MODE_RELATIONSHIPS: {
-  [key: string]: { relative: string; offset: number }
-} = {
-  Ionian: { relative: 'Aeolian', offset: -3 }, // Relative minor is 3 semitones down
-  Dorian: { relative: 'Ionian', offset: 2 },
-  Phrygian: { relative: 'Ionian', offset: 4 },
-  Lydian: { relative: 'Ionian', offset: 5 },
-  Mixolydian: { relative: 'Ionian', offset: 7 },
-  Aeolian: { relative: 'Ionian', offset: 9 },
-  Locrian: { relative: 'Ionian', offset: 11 },
-}
-
 const RelativeScaleInfo: React.FC<RelativeScaleInfoProps> = ({
   mode,
   tonic,
   onSelectMode,
 }) => {
-  if (mode.category !== 'Major Scale Modes') {
+  // 确定目标关系调式名称
+  const targetModeName = mode.name === 'Ionian' ? 'Aeolian' : 'Ionian'
+  const result = getRelativeModeAndTonic(mode, tonic, targetModeName)
+
+  // 如果无法计算关系调式 (例如非大调音阶调式)，则不渲染组件
+  if (!result) {
     return null
   }
-
-  const relationship = MODE_RELATIONSHIPS[mode.name]
-  if (!relationship) {
-    return null
-  }
-
-  const { relative: relativeModeName, offset } = relationship
-
-  // To find the parent/relative tonic, we adjust the current tonic's semitone by the offset.
-  // For modes finding their parent Ionian, we subtract the offset.
-  // For Ionian finding its relative Aeolian, we also subtract (offset is -3).
-  const relativeTonicSemitone = (tonic.semitone - offset + 12) % 12
-
-  const relativeTonic =
-    COMMON_TONICS.find((n) => n.semitone === relativeTonicSemitone) ||
-    CHROMATIC_NOTES.find((n) => n.semitone === relativeTonicSemitone)
-
-  const relativeMode = SCALES[relativeModeName]
-
-  if (!relativeTonic || !relativeMode) {
-    return null
-  }
+  const { newMode: relativeMode, newTonic: relativeTonic } = result
 
   const handleJump = () => {
     onSelectMode(relativeMode.name, relativeTonic.name)

@@ -1,10 +1,10 @@
 import { useEffect, useCallback } from 'react'
 import { Mode, Note, ChordType } from '../types'
 import { MODES, UI_GROUPS, COMMON_TONICS } from '../constants/music'
-import { getScaleNotesWithAbsoluteSemitones } from '../utils/music'
+import { getScaleNotesWithAbsoluteSemitones } from '../utils/musicTheory'
 import { getDiatonicChords } from '../utils/chordTheory'
 import { playNote, playChord } from '../utils/audio'
-import { getFrequencyFromSemitone } from '../utils/music'
+import { getFrequencyFromSemitone } from '../utils/musicTheory'
 import { getRelativeModeAndTonic } from '../utils/musicTheory'
 
 interface KeyboardShortcutsProps {

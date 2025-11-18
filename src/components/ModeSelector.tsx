@@ -4,24 +4,43 @@ import { FiChevronDown } from 'react-icons/fi'
 import { getRelativeModeAndTonic } from '../utils/musicTheory'
 import { Mode, Note } from '../types'
 
+/**
+ * ModeSelector 组件的 props 定义。
+ * @property activeMode - 当前激活的调式。
+ * @property tonic - 当前的根音。
+ * @property onModeChange - 当选择新调式时触发的回调函数。
+ */
 interface ModeSelectorProps {
   activeMode: Mode
   tonic: Note
   onModeChange: (modeIndex: number, newTonic?: Note) => void
 }
 
+/**
+ * 一个复杂的组件，用于显示和选择音乐调式。
+ * 它将调式按 `UI_GROUPS` 的定义进行分组，并支持下拉菜单显示变体调式。
+ * 同时支持按住 Shift 点击来切换到关系调式。
+ */
 const ModeSelector: React.FC<ModeSelectorProps> = ({
   activeMode,
   tonic,
   onModeChange,
 }) => {
+  /** 记录当前哪个下拉菜单是打开的 (通过 group.name 识别) */
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  /** 引用组件的根 DOM 元素，用于检测外部点击 */
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  /**
+   * 处理用户选择一个新调式的操作。
+   * @param targetModeName - 目标调式的名称。
+   * @param event - 点击事件对象 (可选)，用于检测 Shift 键是否被按下。
+   */
   const handleSelect = (
     targetModeName: string,
     event?: React.MouseEvent<HTMLElement>
   ) => {
+    // 按住 Shift 键点击，则尝试切换到关系调式
     if (event?.shiftKey) {
       const result = getRelativeModeAndTonic(activeMode, tonic, targetModeName)
       if (result) {
@@ -35,6 +54,7 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
       }
     }
 
+    // 普通点击，直接切换到目标调式
     const globalIndex = MODES.findIndex((m) => m.name === targetModeName)
     if (globalIndex !== -1) {
       onModeChange(globalIndex)
@@ -42,7 +62,7 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
     setOpenDropdown(null)
   }
 
-  // Close dropdown on outside click
+  // Effect：添加全局点击事件监听器，以在点击外部时关闭下拉菜单。
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (

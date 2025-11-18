@@ -3,6 +3,14 @@ import { Mode, Note, ChordType } from '../types'
 import { getDiatonicChords } from '../utils/chordTheory'
 import ChordCard from './ChordCard'
 
+/**
+ * DiatonicChords 组件的 props 定义。
+ * @property mode - 当前调式。
+ * @property tonic - 当前根音。
+ * @property onNotesAnimate - 触发音符动画的回调。
+ * @property animatingChordIndices - 正在播放动画的和弦索引 Map。
+ * @property onChordPlay - 触发和弦播放的回调。
+ */
 interface DiatonicChordsProps {
   mode: Mode
   tonic: Note
@@ -11,6 +19,10 @@ interface DiatonicChordsProps {
   onChordPlay: (degree: number) => void
 }
 
+/**
+ * 该组件用于显示给定调式和根音的顺阶和弦 (Diatonic Chords)。
+ * 用户可以切换查看三和弦 (Triads) 或七和弦 (Seventh Chords)。
+ */
 const DiatonicChords: React.FC<DiatonicChordsProps> = ({
   mode,
   tonic,
@@ -18,8 +30,10 @@ const DiatonicChords: React.FC<DiatonicChordsProps> = ({
   animatingChordIndices,
   onChordPlay,
 }) => {
+  /** 控制显示三和弦还是七和弦的状态 */
   const [chordType, setChordType] = useState<ChordType>('triad')
 
+  /** 根据当前调式、根音和和弦类型计算出顺阶和弦数组 */
   const chords = getDiatonicChords(mode, tonic, chordType)
 
   const baseClasses =

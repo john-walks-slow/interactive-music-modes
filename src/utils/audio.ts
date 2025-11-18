@@ -1,5 +1,5 @@
 import { Note } from '../types'
-import { getFrequencyFromSemitone } from './music'
+import { getFrequencyFromSemitone } from './musicTheory'
 
 // Create a singleton AudioContext to be reused
 let audioContext: AudioContext | null = null
@@ -57,7 +57,7 @@ export const playScale = (
   notes: Note[],
   onNotesAnimate: (notes: Note[]) => void,
   noteDuration: number = 0.2,
-  gap: number = 0.1,
+  gap: number = 0.1
 ): number => {
   const context = getAudioContext()
   if (context.state === 'suspended') {
@@ -65,17 +65,14 @@ export const playScale = (
   }
 
   notes.forEach((note, index) => {
-    setTimeout(
-      () => {
-        // Trigger animation callback for the single note
-        onNotesAnimate([note])
+    setTimeout(() => {
+      // Trigger animation callback for the single note
+      onNotesAnimate([note])
 
-        // Play audio for the note
-        const frequency = getFrequencyFromSemitone(note.semitone)
-        playNote(frequency, noteDuration)
-      },
-      index * (noteDuration + gap) * 1000,
-    )
+      // Play audio for the note
+      const frequency = getFrequencyFromSemitone(note.semitone)
+      playNote(frequency, noteDuration)
+    }, index * (noteDuration + gap) * 1000)
   })
 
   return (noteDuration + gap) * notes.length

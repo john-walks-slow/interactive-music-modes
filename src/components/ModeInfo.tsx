@@ -5,8 +5,17 @@ import { playScale } from '../utils/audio'
 import { FaPlay } from 'react-icons/fa'
 import RelativeScaleInfo from './RelativeScaleInfo'
 import DiatonicChords from './DiatonicChords'
-import { getScaleNotesWithAbsoluteSemitones } from '../utils/music'
+import { getScaleNotesWithAbsoluteSemitones } from '../utils/musicTheory'
 
+/**
+ * ModeInfo 组件的 props 定义。
+ * @property mode - 当前显示的调式。
+ * @property tonic - 当前的根音。
+ * @property onNotesAnimate - 触发音符动画的回调。
+ * @property animatingChordIndices - 正在播放动画的和弦索引 Map。
+ * @property onChordPlay - 触发和弦播放的回调。
+ * @property onSelectMode - 从提示信息跳转到其他调式的回调。
+ */
 interface ModeInfoProps {
   mode: Mode
   tonic: Note
@@ -16,6 +25,14 @@ interface ModeInfoProps {
   onSelectMode: (modeName: string, tonicName: string) => void
 }
 
+/**
+ * 一个容器组件，用于展示当前选定调式的详细信息。
+ * 包括：
+ * - 调式名称、描述和音阶播放按钮。
+ * - 关系大小调的提示信息。
+ * - 与父级音阶的音程对比分析。
+ * - 该调式的顺阶和弦列表。
+ */
 const ModeInfo: React.FC<ModeInfoProps> = ({
   mode,
   tonic,
@@ -24,15 +41,21 @@ const ModeInfo: React.FC<ModeInfoProps> = ({
   onChordPlay,
   onSelectMode,
 }) => {
+  /** 控制播放按钮的状态，防止重复点击 */
   const [isPlaying, setIsPlaying] = useState(false)
 
+  /**
+   * 处理音阶播放按钮的点击事件。
+   * 它会计算完整的音阶（包含八度音），然后调用音频工具函数来播放，
+   * 并在播放期间禁用按钮。
+   */
   const handlePlayScale = () => {
     if (isPlaying) return
 
     const scaleNotes = getScaleNotesWithAbsoluteSemitones(mode, tonic)
     if (scaleNotes.length < 7) return
 
-    // Add the octave note for playback
+    // 为播放添加八度音，使音阶听起来更完整
     const octaveNote: Note = {
       ...tonic,
       semitone: tonic.semitone + 12,

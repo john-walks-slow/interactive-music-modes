@@ -3,23 +3,38 @@ import { Note } from '../types'
 import { COMMON_TONICS } from '../constants/music'
 import { FiChevronDown } from 'react-icons/fi'
 
+/**
+ * TonicSelector 组件的 props 定义。
+ * @property activeTonic - 当前激活的根音。
+ * @property onTonicChange - 当选择新根音时触发的回调函数。
+ */
 interface TonicSelectorProps {
   activeTonic: Note
   onTonicChange: (note: Note) => void
 }
 
+/**
+ * 一个下拉菜单组件，用于选择音阶的根音。
+ */
 const TonicSelector: React.FC<TonicSelectorProps> = ({
   activeTonic,
   onTonicChange,
 }) => {
+  /** 控制下拉菜单是否打开的状态 */
   const [isOpen, setIsOpen] = useState(false)
+  /** 引用下拉菜单的 DOM 元素，用于检测外部点击 */
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  /**
+   * 处理用户选择新根音的操作。
+   * @param note - 被选中的音符对象。
+   */
   const handleSelect = (note: Note) => {
     onTonicChange(note)
     setIsOpen(false)
   }
 
+  // Effect：添加全局点击事件监听器，以在点击外部时关闭下拉菜单。
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
