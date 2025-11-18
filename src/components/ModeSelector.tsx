@@ -94,7 +94,7 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
             <button
               key={group.name}
               onClick={(e) => handleSelect(group.name, e)}
-              className={`px-3 sm:px-4 py-2 text-sm md:text-base font-semibold rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 ${
+              className={`px-3 sm:px-4 py-2 text-sm md:text-base font-semibold rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 ${
                 isGroupActive
                   ? 'bg-sky-500 text-white shadow-sm'
                   : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
