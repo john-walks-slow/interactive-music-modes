@@ -1,10 +1,10 @@
-import { Mode, Note } from '../types'
+import { Interval, Mode, Note } from '../types'
 import {
   C4_FREQUENCY,
   COMMON_TONICS,
   ENHARMONIC_NOTES,
-  getIntervalSemitone,
   MODES,
+  INTERVAL_SEMITONES,
 } from '../constants/music'
 
 /**
@@ -150,3 +150,12 @@ export const getScaleNotesWithAbsoluteSemitones = (
     })
     .filter((note): note is Note => note !== null)
 }
+
+/**
+ * 获取一个音程所对应的半音数。
+ * @param interval - 音程对象，包含性质和度数。
+ * @returns 对应的半音数。如果找不到，则返回 -1。
+ */
+export const getIntervalSemitone = (interval: Interval): number => {
+  return INTERVAL_SEMITONES[`${interval.quality}${interval.number}`] ?? -1
+} /** C4 (中央C) 的频率，作为所有音高计算的基准。 */

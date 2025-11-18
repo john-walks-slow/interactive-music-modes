@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Mode } from '../types'
-import { SCALES, MODES, getIntervalSemitone } from '../constants/music'
+import { SCALES, MODES } from '../constants/music'
 import { FiChevronDown } from 'react-icons/fi'
+import { getIntervalSemitone } from '../utils/musicTheory'
 
 interface IntervalDetailProps {
   mode: Mode
@@ -16,7 +17,7 @@ const AlterationIndicator: React.FC<{ change: 'raised' | 'lowered' }> = ({
 
 const IntervalDetail: React.FC<IntervalDetailProps> = ({ mode }) => {
   const [comparisonTarget, setComparisonTarget] = useState<'auto' | string>(
-    'auto',
+    'auto'
   )
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -53,7 +54,7 @@ const IntervalDetail: React.FC<IntervalDetailProps> = ({ mode }) => {
     if (mode.name === parentMode.name) return null
     const currentSemitone = getIntervalSemitone(mode.intervals[currentIndex])
     const parentSemitone = getIntervalSemitone(
-      parentMode.intervals[currentIndex],
+      parentMode.intervals[currentIndex]
     )
 
     if (currentSemitone > parentSemitone) return 'raised'
@@ -79,7 +80,9 @@ const IntervalDetail: React.FC<IntervalDetailProps> = ({ mode }) => {
           >
             <span>{comparisonName}</span>
             <FiChevronDown
-              className={`w-4 h-4 ml-1 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+              className={`w-4 h-4 ml-1 transition-transform duration-200 ${
+                isDropdownOpen ? 'rotate-180' : ''
+              }`}
             />
           </button>
           {isDropdownOpen && (
@@ -91,7 +94,11 @@ const IntervalDetail: React.FC<IntervalDetailProps> = ({ mode }) => {
                     e.preventDefault()
                     handleSelect('auto')
                   }}
-                  className={`block px-4 py-2 text-sm ${comparisonTarget === 'auto' ? 'font-semibold text-sky-600 bg-sky-50' : 'text-gray-700 hover:bg-gray-100'}`}
+                  className={`block px-4 py-2 text-sm ${
+                    comparisonTarget === 'auto'
+                      ? 'font-semibold text-sky-600 bg-sky-50'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
                   role="menuitem"
                 >
                   Auto: {autoParentMode.name}
@@ -105,7 +112,11 @@ const IntervalDetail: React.FC<IntervalDetailProps> = ({ mode }) => {
                       e.preventDefault()
                       handleSelect(m.name)
                     }}
-                    className={`block px-4 py-2 text-sm ${comparisonTarget === m.name ? 'font-semibold text-sky-600 bg-sky-50' : 'text-gray-700 hover:bg-gray-100'}`}
+                    className={`block px-4 py-2 text-sm ${
+                      comparisonTarget === m.name
+                        ? 'font-semibold text-sky-600 bg-sky-50'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                     role="menuitem"
                   >
                     {m.name}

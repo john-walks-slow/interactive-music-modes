@@ -59,7 +59,7 @@ export interface Note {
 }
 
 /** 视图模式：钢琴视图或音程距离视图 */
-export type ViewMode = 'piano' | 'distance'
+export type ViewMode = 'piano' | 'distance' | 'circular'
 
 /** 和弦类型：三和弦或七和弦 */
 export type ChordType = 'triad' | 'seventh'

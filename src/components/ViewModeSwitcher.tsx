@@ -1,6 +1,7 @@
 import React from 'react'
 import { ViewMode } from '../types'
-import { TbPiano, TbRulerMeasure } from 'react-icons/tb'
+import { TbPiano, TbRulerMeasure, TbCircle } from 'react-icons/tb'
+import { LuOrbit } from 'react-icons/lu'
 
 interface ViewModeSwitcherProps {
   currentView: ViewMode
@@ -22,7 +23,9 @@ const ViewModeSwitcher: React.FC<ViewModeSwitcherProps> = ({
         <button
           type="button"
           onClick={() => onViewChange('piano')}
-          className={`${baseClasses} rounded-l-lg border border-gray-200 ${currentView === 'piano' ? activeClasses : inactiveClasses}`}
+          className={`${baseClasses} rounded-l-lg border border-gray-200 ${
+            currentView === 'piano' ? activeClasses : inactiveClasses
+          }`}
         >
           <TbPiano className="w-5 h-5" />
           Piano
@@ -30,10 +33,22 @@ const ViewModeSwitcher: React.FC<ViewModeSwitcherProps> = ({
         <button
           type="button"
           onClick={() => onViewChange('distance')}
-          className={`${baseClasses} rounded-r-md border-t border-b border-r border-gray-200 ${currentView === 'distance' ? activeClasses : inactiveClasses}`}
+          className={`${baseClasses} border-t border-b border-r border-gray-200 ${
+            currentView === 'distance' ? activeClasses : inactiveClasses
+          }`}
         >
           <TbRulerMeasure className="w-5 h-5" />
           Interval
+        </button>
+        <button
+          type="button"
+          onClick={() => onViewChange('circular')}
+          className={`${baseClasses} rounded-r-md border-t border-b border-r border-gray-200 ${
+            currentView === 'circular' ? activeClasses : inactiveClasses
+          }`}
+        >
+          <LuOrbit className="w-5 h-5" />
+          Circular
         </button>
       </div>
     </div>

@@ -156,7 +156,7 @@ const IntervalView: React.FC<IntervalViewProps> = ({
   const octaveNote: Note = { ...tonic, semitone: tonic.semitone + 12 }
 
   return (
-    <div className="flex items-center justify-center p-6 bg-white border border-gray-200 rounded-lg h-full w-full">
+    <div className="flex items-center justify-center p-6 h-full w-full">
       <div className="flex items-center justify-between w-full">
         {scaleNotes.map((note, index) => {
           if (!note) return null

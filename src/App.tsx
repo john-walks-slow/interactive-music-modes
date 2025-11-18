@@ -12,6 +12,7 @@ import ModeInfo from './components/ModeInfo'
 import { ViewMode, Note, Mode } from './types'
 import ViewModeSwitcher from './components/ViewModeSwitcher'
 import IntervalView from './components/IntervalView'
+import CircularView from './components/CircularView'
 import { TbMusic } from 'react-icons/tb'
 import TonicSelector from './components/TonicSelector'
 import { playNote } from './utils/audio'
@@ -31,7 +32,7 @@ const App: React.FC = () => {
   /** 当前激活的调式在 `MODES` 数组中的索引 */
   const [activeModeIndex, setActiveModeIndex] = useState(0)
   /** 当前视图模式 ('piano' 或 'distance') */
-  const [viewMode, setViewMode] = useState<ViewMode>('distance')
+  const [viewMode, setViewMode] = useState<ViewMode>('circular')
   /** 当前根音 */
   const [tonic, setTonic] = useState<Note>(COMMON_TONICS[0])
 
@@ -233,8 +234,12 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16">
-        <div className="h-[160px] sm:h-[200px]">
+      <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16 ">
+        <div
+          className={`transition-all duration-300 flex justify-center  bg-white border border-gray-200 rounded-lg shadow-sm  ${
+            viewMode === 'circular' ? '' : 'h-[160px] sm:h-[200px]'
+          }`}
+        >
           {viewMode === 'piano' ? (
             <Piano
               mode={activeMode}
@@ -243,8 +248,16 @@ const App: React.FC = () => {
               animationTriggers={animationTriggers}
               onNoteClick={handleSingleNotePlay}
             />
-          ) : (
+          ) : viewMode === 'distance' ? (
             <IntervalView
+              mode={activeMode}
+              tonic={tonic}
+              scaleNotes={scaleNotes}
+              animationTriggers={animationTriggers}
+              onNoteClick={handleSingleNotePlay}
+            />
+          ) : (
+            <CircularView
               mode={activeMode}
               tonic={tonic}
               scaleNotes={scaleNotes}

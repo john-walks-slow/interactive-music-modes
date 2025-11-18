@@ -71,7 +71,7 @@ const Piano: React.FC<PianoProps> = ({
   const BLACK_KEY_WIDTH_PERCENT = WHITE_KEY_WIDTH_PERCENT * 0.6
 
   return (
-    <div className="relative w-full h-full select-none overflow-hidden rounded-lg border-2 border-gray-200 bg-slate-100 shadow-inner">
+    <div className="relative w-full h-full select-none overflow-hidden rounded-lg bg-slate-100 shadow-inner">
       {/* White Keys */}
       {whiteKeys.map((note, index) => {
         const relativeSemitone = note.semitone % 12

@@ -252,7 +252,7 @@ export const COMMON_TONICS: Note[] = Object.entries(ENHARMONIC_NOTES).map(
 /**
  * `INTERVAL_SEMITONES` 将音程的字符串表示（如 'P1', 'm2'）映射到其对应的半音数。
  */
-const INTERVAL_SEMITONES: Record<string, number> = {
+export const INTERVAL_SEMITONES: Record<string, number> = {
   P1: 0,
   m2: 1,
   M2: 2,
@@ -268,12 +268,4 @@ const INTERVAL_SEMITONES: Record<string, number> = {
   M7: 11,
 }
 
-/**
- * 获取一个音程所对应的半音数。
- * @param interval - 音程对象，包含性质和度数。
- * @returns 对应的半音数。如果找不到，则返回 -1。
- */
-export const getIntervalSemitone = (interval: Interval): number => {
-  return INTERVAL_SEMITONES[`${interval.quality}${interval.number}`] ?? -1
-} /** C4 (中央C) 的频率，作为所有音高计算的基准。 */
 export const C4_FREQUENCY = 261.63
