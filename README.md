@@ -1,4 +1,4 @@
-# Interactive Modes & Scales
+# Interactive Music Modes
 
 ![alt text](misc/screenshot4.png)
 
